@@ -21,13 +21,13 @@
       --border-gray: #E0E0E0;      /* Abu-abu Garis Pembatas/Tabel */
       --text-dark: #212121;        /* Teks Utama */
       --text-muted: #757575;       /* Teks Sekunder/Sub-informasi */
-      --accent-red: #D32F2F;       /* Merah (Status Pelanggaran / Tombol Hapus) */
+      --accent-red: #D32F2F;       /* Merah (Tombol Kembali Mengambang & Hapus) */
+      --red-hover: #B71C1C;        /* Merah Gelap untuk Hover */
       --red-light: #FFEBEE;
       --accent-yellow: #FBC02D;    /* Kuning (Status Rapot / Aksen) */
       --yellow-light: #FFFDE7;
       --white: #FFFFFF;
       
-      --sidebar-width: 260px;
       --header-height: 60px;
       --transition-speed: 0.3s;
     }
@@ -44,6 +44,7 @@
       background-color: var(--bg-gray);
       color: var(--text-dark);
       display: flex;
+      flex-direction: column;
       min-height: 100vh;
       overflow-x: hidden;
     }
@@ -62,7 +63,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 16px;
+      padding: 0 20px;
       z-index: 1000;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
@@ -75,115 +76,17 @@
       font-size: 1.1rem;
     }
 
-    .menu-toggle {
-      background: none;
-      border: none;
-      color: var(--white);
-      font-size: 1.4rem;
-      cursor: pointer;
-      display: block;
-    }
-
     /* ==========================================================================
-       3. SIDEBAR (DRAWER NAVIGASI MENU)
-       ========================================================================== */
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: -100%;
-      width: var(--sidebar-width);
-      height: 100%;
-      background-color: var(--white);
-      border-right: 1px solid var(--border-gray);
-      z-index: 1001;
-      transition: left var(--transition-speed) ease;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .sidebar.active {
-      left: 0;
-    }
-
-    .sidebar-header {
-      height: var(--header-height);
-      background-color: var(--primary-green);
-      color: var(--white);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 16px;
-      font-weight: 700;
-    }
-
-    .close-btn {
-      background: none;
-      border: none;
-      color: var(--white);
-      font-size: 1.2rem;
-      cursor: pointer;
-    }
-
-    .nav-list {
-      list-style: none;
-      padding: 16px 0;
-      overflow-y: auto;
-    }
-
-    .nav-item a {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 14px 24px;
-      color: var(--text-dark);
-      text-decoration: none;
-      font-weight: 500;
-      border-left: 4px solid transparent;
-      transition: all 0.2s;
-    }
-
-    .nav-item a:hover {
-      background-color: #F8F9FA;
-      color: var(--primary-green);
-    }
-
-    .nav-item.active a {
-      background-color: transparent;
-      color: var(--primary-green);
-      font-weight: 600;
-      border-left: 4px solid var(--primary-green);
-    }
-
-    .nav-item i {
-      font-size: 1.2rem;
-      width: 24px;
-      text-align: center;
-    }
-
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.4);
-      z-index: 999;
-      display: none;
-    }
-
-    .overlay.active {
-      display: block;
-    }
-
-    /* ==========================================================================
-       4. KONTEN UTAMA & DASHBOARD CARD
+       3. KONTEN UTAMA & DASHBOARD CARD
        ========================================================================== */
     .main-content {
       flex: 1;
       margin-top: var(--header-height);
       padding: 20px 16px;
       width: 100%;
-      transition: margin-left var(--transition-speed) ease;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .welcome-banner {
@@ -211,6 +114,7 @@
       color: var(--text-dark);
     }
 
+    /* Grid Kartu Menu Utama */
     .menu-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -247,6 +151,7 @@
       font-size: 1.3rem;
     }
 
+    /* Variasi Warna Circle Ikon Kartu */
     .icon-siswa { background-color: var(--green-light); color: var(--primary-green); }
     .icon-guru { background-color: #E3F2FD; color: #1976D2; }
     .icon-alumni { background-color: #F3E5F5; color: #7B1FA2; }
@@ -259,33 +164,53 @@
       font-weight: 600;
     }
 
+    /* Container untuk Section Detail Fitur */
     .content-section {
       display: none;
       background-color: var(--white);
       padding: 20px;
       border-radius: 12px;
       border: 1px solid var(--border-gray);
+      margin-top: 50px; /* Beri ruang jarak atas untuk tombol mengambang */
     }
 
     .content-section.active {
       display: block;
     }
 
-    .btn-back {
-      background-color: var(--bg-gray);
-      border: 1px solid var(--border-gray);
-      padding: 8px 16px;
-      border-radius: 6px;
+    /* TOMBOL KEMBALI MENGAMBANG (FLOATING) MERAH */
+    .btn-back-floating {
+      position: fixed;
+      top: 72px;
+      left: 16px;
+      z-index: 990;
+      background-color: var(--accent-red);
+      color: var(--white);
+      border: none;
+      padding: 10px 18px;
+      border-radius: 50px;
       cursor: pointer;
-      font-weight: 500;
-      margin-bottom: 16px;
+      font-weight: 600;
+      font-size: 0.88rem;
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      box-shadow: 0 4px 12px rgba(211, 47, 47, 0.35);
+      transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-back-floating:hover {
+      background-color: var(--red-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(211, 47, 47, 0.45);
+    }
+
+    .btn-back-floating:active {
+      transform: scale(0.96);
     }
 
     /* ==========================================================================
-       5. STYLE KHUSUS LAMAN DATA SISWA (TABEL, TOOLBAR, & MODAL)
+       4. STYLE KHUSUS LAMAN DATA SISWA (TABEL, TOOLBAR, & MODAL)
        ========================================================================== */
     .action-toolbar {
       display: flex;
@@ -329,6 +254,7 @@
     .btn-outline { background-color: var(--white); border: 1px solid var(--border-gray); color: var(--text-dark); }
     .btn-danger { background-color: var(--accent-red); color: var(--white); }
 
+    /* Pembungkus Tabel Agar Bisa di-scroll Horisontal di HP */
     .table-container {
       width: 100%;
       overflow-x: auto;
@@ -366,7 +292,7 @@
       text-decoration: underline;
     }
 
-    /* Modal Popup untuk Edit & Peringatan */
+    /* Modal Popup */
     .modal {
       display: none;
       position: fixed;
@@ -424,7 +350,7 @@
     }
 
     /* ==========================================================================
-       6. STYLE KHUSUS CETAK / PRINT PDF LANDSCAPE
+       5. STYLE KHUSUS CETAK / PRINT PDF LANDSCAPE
        ========================================================================== */
     .print-header {
       display: none;
@@ -444,6 +370,7 @@
       color: var(--text-dark);
     }
     
+    /* STYLE KHUSUS LAMAN RAPOT */
     .guru-rapot-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -545,7 +472,7 @@
         margin: 10mm;
       }
 
-      .header, .sidebar, .btn-back, .action-toolbar, .modal, .overlay {
+      .header, .btn-back-floating, .action-toolbar, .modal {
         display: none !important;
       }
 
@@ -557,11 +484,13 @@
       .main-content {
         margin: 0 !important;
         padding: 0 !important;
+        max-width: 100% !important;
       }
 
       .content-section {
         border: none !important;
         padding: 0 !important;
+        margin-top: 0 !important;
       }
 
       .print-header {
@@ -598,24 +527,11 @@
     }
 
     /* ==========================================================================
-       7. MEDIA QUERIES (DESAIN TABLET / DESKTOP)
+       6. MEDIA QUERIES (TABLET & DESKTOP)
        ========================================================================== */
     @media (min-width: 768px) {
-      .menu-toggle {
-        display: none;
-      }
-
-      .sidebar {
-        left: 0;
-      }
-
-      .header {
-        padding-left: calc(var(--sidebar-width) + 24px);
-      }
-
       .main-content {
-        margin-left: var(--sidebar-width);
-        padding: 32px;
+        padding: 32px 24px;
       }
 
       .menu-grid {
@@ -633,80 +549,32 @@
         transform: translateY(-3px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
       }
+
+      .btn-back-floating {
+        top: 76px;
+        left: calc((100vw - 1200px) / 2 + 24px); /* Posisikan sejajar dengan margin container desktop */
+      }
+    }
+
+    @media (max-width: 1248px) {
+      .btn-back-floating {
+        left: 20px;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- Overlay Transparan Sidebar HP -->
-  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
-
   <!-- HEADER ATAS -->
   <header class="header">
     <div class="header-brand">
-      <button class="menu-toggle" onclick="toggleSidebar()">
-        <i class="fa-solid fa-bars"></i>
-      </button>
+      <i class="fa-solid fa-school" style="font-size: 1.3rem;"></i>
       <span>SI-SEKOLAH</span>
     </div>
     <div>
       <i class="fa-solid fa-circle-user" style="font-size: 1.5rem;"></i>
     </div>
   </header>
-
-  <!-- SIDEBAR NAVIGATION DRAWER -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <span>Menu Utama</span>
-      <button class="close-btn" onclick="closeSidebar()">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-    </div>
-    <ul class="nav-list">
-      <li class="nav-item active" id="nav-dashboard">
-        <a href="#" onclick="showSection('dashboard')">
-          <i class="fa-solid fa-house"></i>
-          <span>Dashboard</span>
-        </a>
-      </li>
-      <li class="nav-item" id="nav-siswa">
-        <a href="#" onclick="showSection('siswa')">
-          <i class="fa-solid fa-user-graduate"></i>
-          <span>Data Siswa</span>
-        </a>
-      </li>
-      <li class="nav-item" id="nav-guru">
-        <a href="#" onclick="showSection('guru')">
-          <i class="fa-solid fa-chalkboard-user"></i>
-          <span>Data Guru</span>
-        </a>
-      </li>
-      <li class="nav-item" id="nav-alumni">
-        <a href="#" onclick="showSection('alumni')">
-          <i class="fa-solid fa-user-tie"></i>
-          <span>Data Alumni</span>
-        </a>
-      </li>
-      <li class="nav-item" id="nav-rapot">
-        <a href="#" onclick="showSection('rapot')">
-          <i class="fa-solid fa-file-invoice"></i>
-          <span>Rapot</span>
-        </a>
-      </li>
-      <li class="nav-item" id="nav-pelanggaran">
-        <a href="#" onclick="showSection('pelanggaran')">
-          <i class="fa-solid fa-triangle-exclamation"></i>
-          <span>Pelanggaran</span>
-        </a>
-      </li>
-      <li class="nav-item" id="nav-surat">
-        <a href="#" onclick="showSection('surat')">
-          <i class="fa-solid fa-envelope-open-text"></i>
-          <span>Surat Menyurat</span>
-        </a>
-      </li>
-    </ul>
-  </aside>
 
   <!-- KONTEN UTAMA APLIKASI -->
   <main class="main-content">
@@ -767,7 +635,7 @@
 
     <!-- 2. SECTION DATA SISWA -->
     <div id="section-siswa" class="content-section">
-      <button class="btn-back" onclick="showSection('dashboard')">
+      <button class="btn-back-floating" onclick="showSection('dashboard')">
         <i class="fa-solid fa-arrow-left"></i> Kembali
       </button>
 
@@ -821,7 +689,7 @@
 
     <!-- 3. SECTION MENU LAINNYA -->
     <div id="section-guru" class="content-section">
-      <button class="btn-back" onclick="showSection('dashboard')">
+      <button class="btn-back-floating" onclick="showSection('dashboard')">
         <i class="fa-solid fa-arrow-left"></i> Kembali
       </button>
       <h3>Halaman Data Guru</h3>
@@ -829,7 +697,7 @@
     </div>
 
     <div id="section-alumni" class="content-section">
-      <button class="btn-back" onclick="showSection('dashboard')">
+      <button class="btn-back-floating" onclick="showSection('dashboard')">
         <i class="fa-solid fa-arrow-left"></i> Kembali
       </button>
       <h3>Halaman Data Alumni</h3>
@@ -839,7 +707,7 @@
     <!-- SECTION RAPOT SISWA -->
     <div id="section-rapot" class="content-section">
       <div id="rapot-step-guru">
-        <button class="btn-back" onclick="showSection('dashboard')">
+        <button class="btn-back-floating" onclick="showSection('dashboard')">
           <i class="fa-solid fa-arrow-left"></i> Kembali
         </button>
         <h3 class="section-title">Pilih Guru / Mata Pelajaran</h3>
@@ -884,7 +752,7 @@
       </div>
 
       <div id="rapot-step-input" style="display: none;">
-        <button class="btn-back" onclick="kembaliKePilihGuru()">
+        <button class="btn-back-floating" onclick="kembaliKePilihGuru()">
           <i class="fa-solid fa-arrow-left"></i> Kembali ke Pilih Guru
         </button>
 
@@ -967,7 +835,7 @@
     </div>
 
     <div id="section-pelanggaran" class="content-section">
-      <button class="btn-back" onclick="showSection('dashboard')">
+      <button class="btn-back-floating" onclick="showSection('dashboard')">
         <i class="fa-solid fa-arrow-left"></i> Kembali
       </button>
       <h3>Halaman Catatan Pelanggaran</h3>
@@ -975,7 +843,7 @@
     </div>
 
     <div id="section-surat" class="content-section">
-      <button class="btn-back" onclick="showSection('dashboard')">
+      <button class="btn-back-floating" onclick="showSection('dashboard')">
         <i class="fa-solid fa-arrow-left"></i> Kembali
       </button>
       <h3>Halaman Surat Menyurat</h3>
@@ -989,7 +857,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h4 id="modalTitle">Detail Data Siswa</h4>
-        <button class="close-btn" style="color: var(--text-dark);" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+        <button class="close-btn" style="background:none; border:none; font-size:1.2rem; cursor:pointer; color: var(--text-dark);" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="modal-body">
         <form id="formSiswa">
@@ -1063,46 +931,28 @@
        LOGIKA PENCEGAHAN NAVIGASI BACK BROWSER (DESKTOP & MOBILE)
        ========================================================================== */
 
-    // 1. Kunci riwayat browser dengan memasukkan state dummy
     function lockBrowserHistory() {
       window.history.pushState({ page: 'app' }, "", window.location.href);
     }
 
-    // Inisialisasi awal saat halaman dimuat
     lockBrowserHistory();
 
-    // Kunci ulang pada sentuhan pertama pengguna di perangkat mobile
     window.addEventListener('touchstart', function() {
       lockBrowserHistory();
     }, { once: true });
 
-    // 2. Tangkap event popstate saat tombol 'Back' browser / gestur mobile dipicu
     window.addEventListener('popstate', function (event) {
-      // Masukkan kembali state ke history agar tidak keluar halaman
       lockBrowserHistory();
-      
-      // Tampilkan popup modal pemberitahuan
       document.getElementById('modalBackWarning').classList.add('active');
     });
 
-    // 3. Fungsi untuk menutup popup peringatan tombol back
     function closeBackWarning() {
       document.getElementById('modalBackWarning').classList.remove('active');
     }
 
     /* ==========================================================================
-       LOGIKA NAVIGASI SIDEBAR & TAMPILAN SECTION
+       LOGIKA TAMPILAN SECTION
        ========================================================================== */
-    
-    function toggleSidebar() {
-      document.getElementById('sidebar').classList.toggle('active');
-      document.getElementById('overlay').classList.toggle('active');
-    }
-
-    function closeSidebar() {
-      document.getElementById('sidebar').classList.remove('active');
-      document.getElementById('overlay').classList.remove('active');
-    }
 
     function showSection(sectionId) {
       document.getElementById('section-dashboard').style.display = (sectionId === 'dashboard') ? 'block' : 'none';
@@ -1117,15 +967,8 @@
         }
       }
 
-      const navItems = document.querySelectorAll('.nav-item');
-      navItems.forEach(item => item.classList.remove('active'));
-
-      const activeNavItem = document.getElementById('nav-' + sectionId);
-      if (activeNavItem) {
-        activeNavItem.classList.add('active');
-      }
-
-      closeSidebar();
+      // Selalu scroll halus ke atas saat berganti halaman/section
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     /* ==========================================================================
@@ -1273,11 +1116,14 @@
           </td>
         </tr>
       `;
+      
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function kembaliKePilihGuru() {
       document.getElementById('rapot-step-input').style.display = 'none';
       document.getElementById('rapot-step-guru').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function filterSiswaRapot() {
