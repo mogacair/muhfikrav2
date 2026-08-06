@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Informasi Sekolah Terintegrasi</title>
+  
+  <!-- Import Google Fonts (Inter) & Font Awesome (Ikon) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  
+  <style>
+    /* ==========================================================================
+       1. VARIABEL PALET WARNA & RESET CSS
+       ========================================================================== */
+    :root {
+      --primary-green: #2E7D32;    /* Warna Utama Header & Aksesori */
+      --green-light: #E8F5E9;      /* Warna Hijau Soft untuk Hover/Highlight */
+      --green-hover: #1B5E20;      /* Warna Hijau Gelap untuk State Hover Tombol */
+      --bg-gray: #F4F6F8;          /* Abu-abu Latar Belakang Aplikasi */
+      --border-gray: #E0E0E0;      /* Abu-abu Garis Pembatas/Tabel */
+      --text-dark: #212121;        /* Teks Utama */
+      --text-muted: #757575;       /* Teks Sekunder/Sub-informasi */
+      --accent-red: #D32F2F;       /* Merah (Status Pelanggaran / Tombol Hapus) */
+      --red-light: #FFEBEE;
+      --accent-yellow: #FBC02D;    /* Kuning (Status Rapot / Aksen) */
+      --yellow-light: #FFFDE7;
+      --white: #FFFFFF;
+      
+      --sidebar-width: 260px;
+      --header-height: 60px;
+      --transition-speed: 0.3s;
+    }
+
+    /* Reset Margin, Padding, & Font Default */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-gray);
+      color: var(--text-dark);
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ==========================================================================
+       2. HEADER (BILAH NAVIGASI ATAS)
+       ========================================================================== */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--header-height);
+      background-color: var(--primary-green);
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 1000;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .menu-toggle {
+      background: none;
+      border: none;
+      color: var(--white);
+      font-size: 1.4rem;
+      cursor: pointer;
+      display: block;
+    }
+
+    /* ==========================================================================
+       3. SIDEBAR (DRAWER NAVIGASI MENU)
+       ========================================================================== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -100%;
+      width: var(--sidebar-width);
+      height: 100%;
+      background-color: var(--white);
+      border-right: 1px solid var(--border-gray);
+      z-index: 1001;
+      transition: left var(--transition-speed) ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar.active {
+      left: 0;
+    }
+
+    .sidebar-header {
+      height: var(--header-height);
+      background-color: var(--primary-green);
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      font-weight: 700;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--white);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    .nav-list {
+      list-style: none;
+      padding: 16px 0;
+      overflow-y: auto;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 24px;
+      color: var(--text-dark);
+      text-decoration: none;
+      font-weight: 500;
+      border-left: 4px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .nav-item a:hover {
+      background-color: #F8F9FA;
+      color: var(--primary-green);
+    }
+
+    .nav-item.active a {
+      background-color: transparent;
+      color: var(--primary-green);
+      font-weight: 600;
+      border-left: 4px solid var(--primary-green);
+    }
+
+    .nav-item i {
+      font-size: 1.2rem;
+      width: 24px;
+      text-align: center;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 999;
+      display: none;
+    }
+
+    .overlay.active {
+      display: block;
+    }
+
+    /* ==========================================================================
+       4. KONTEN UTAMA & DASHBOARD CARD
+       ========================================================================== */
+    .main-content {
+      flex: 1;
+      margin-top: var(--header-height);
+      padding: 20px 16px;
+      width: 100%;
+      transition: margin-left var(--transition-speed) ease;
+    }
+
+    .welcome-banner {
+      background: linear-gradient(135deg, var(--primary-green), var(--green-hover));
+      color: var(--white);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+    }
+
+    .welcome-banner h2 {
+      font-size: 1.4rem;
+      margin-bottom: 4px;
+    }
+
+    .welcome-banner p {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--text-dark);
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .card-menu {
+      background-color: var(--white);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border-gray);
+      text-decoration: none;
+      color: var(--text-dark);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 12px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+
+    .card-menu:active {
+      transform: scale(0.98);
+    }
+
+    .card-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+
+    .icon-siswa { background-color: var(--green-light); color: var(--primary-green); }
+    .icon-guru { background-color: #E3F2FD; color: #1976D2; }
+    .icon-alumni { background-color: #F3E5F5; color: #7B1FA2; }
+    .icon-rapot { background-color: var(--yellow-light); color: #F57F17; }
+    .icon-pelanggaran { background-color: var(--red-light); color: var(--accent-red); }
+    .icon-surat { background-color: #E0F2F1; color: #00695C; }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .content-section {
+      display: none;
+      background-color: var(--white);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border-gray);
+    }
+
+    .content-section.active {
+      display: block;
+    }
+
+    .btn-back {
+      background-color: var(--bg-gray);
+      border: 1px solid var(--border-gray);
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      margin-bottom: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ==========================================================================
+       5. STYLE KHUSUS LAMAN DATA SISWA (TABEL, TOOLBAR, & MODAL)
+       ========================================================================== */
+    .action-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .toolbar-left, .toolbar-right {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .select-kelas {
+      padding: 8px 12px;
+      border: 1px solid var(--border-gray);
+      border-radius: 6px;
+      outline: none;
+      font-weight: 500;
+      background-color: var(--white);
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background-color 0.2s;
+    }
+
+    .btn-primary { background-color: var(--primary-green); color: var(--white); }
+    .btn-primary:hover { background-color: var(--green-hover); }
+    .btn-outline { background-color: var(--white); border: 1px solid var(--border-gray); color: var(--text-dark); }
+    .btn-danger { background-color: var(--accent-red); color: var(--white); }
+
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border-gray);
+      border-radius: 8px;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+
+    .data-table th, .data-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-gray);
+    }
+
+    .data-table th {
+      background-color: #F8F9FA;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .data-table tbody tr:hover {
+      background-color: var(--green-light);
+    }
+
+    .student-name {
+      color: var(--primary-green);
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    /* Modal Popup untuk Edit & Peringatan */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal.active { display: flex; }
+
+    .modal-content {
+      background: var(--white);
+      width: 100%;
+      max-width: 600px;
+      border-radius: 12px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-gray);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-body { padding: 20px; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
+    .form-group input {
+      padding: 8px 12px;
+      border: 1px solid var(--border-gray);
+      border-radius: 6px;
+      outline: none;
+    }
+
+    .modal-footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border-gray);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    /* ==========================================================================
+       6. STYLE KHUSUS CETAK / PRINT PDF LANDSCAPE
+       ========================================================================== */
+    .print-header {
+      display: none;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .print-header h2 {
+      font-size: 1.3rem;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .print-header p {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+    
+    .guru-rapot-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .card-guru-rapot {
+      background: var(--white);
+      border: 1px solid var(--border-gray);
+      border-radius: 10px;
+      padding: 16px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card-guru-rapot:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      border-color: var(--primary-green);
+    }
+
+    .guru-info-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .guru-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background-color: var(--green-light);
+      color: var(--primary-green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .guru-nama {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .mapel-badge-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .mapel-badge {
+      background-color: var(--bg-gray);
+      border: 1px solid var(--border-gray);
+      color: var(--text-dark);
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    .rapot-form-card {
+      background: var(--white);
+      border: 1px solid var(--border-gray);
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 16px;
+    }
+
+    .filter-rapot-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .input-nilai-rapot {
+      width: 90px;
+      padding: 6px 10px;
+      border: 1px solid var(--border-gray);
+      border-radius: 6px;
+      text-align: center;
+      font-weight: 600;
+      outline: none;
+    }
+
+    .input-nilai-rapot:focus {
+      border-color: var(--primary-green);
+      background-color: var(--green-light);
+    }
+
+    @media print {
+      @page {
+        size: landscape;
+        margin: 10mm;
+      }
+
+      .header, .sidebar, .btn-back, .action-toolbar, .modal, .overlay {
+        display: none !important;
+      }
+
+      body {
+        background-color: #fff !important;
+        color: #000 !important;
+      }
+
+      .main-content {
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      .content-section {
+        border: none !important;
+        padding: 0 !important;
+      }
+
+      .print-header {
+        display: block !important;
+      }
+
+      .table-container {
+        border: none !important;
+      }
+
+      .data-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        font-size: 0.85rem !important;
+      }
+
+      .data-table th, .data-table td {
+        border: 1px solid #000 !important;
+        padding: 6px 10px !important;
+        color: #000 !important;
+      }
+
+      .data-table th {
+        background-color: #E0E0E0 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .student-name {
+        color: #000 !important;
+        text-decoration: none !important;
+        font-weight: normal !important;
+      }
+    }
+
+    /* ==========================================================================
+       7. MEDIA QUERIES (DESAIN TABLET / DESKTOP)
+       ========================================================================== */
+    @media (min-width: 768px) {
+      .menu-toggle {
+        display: none;
+      }
+
+      .sidebar {
+        left: 0;
+      }
+
+      .header {
+        padding-left: calc(var(--sidebar-width) + 24px);
+      }
+
+      .main-content {
+        margin-left: var(--sidebar-width);
+        padding: 32px;
+      }
+
+      .menu-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+      }
+
+      .card-menu {
+        flex-direction: row;
+        text-align: left;
+        padding: 24px;
+      }
+
+      .card-menu:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Overlay Transparan Sidebar HP -->
+  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+  <!-- HEADER ATAS -->
+  <header class="header">
+    <div class="header-brand">
+      <button class="menu-toggle" onclick="toggleSidebar()">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <span>SI-SEKOLAH</span>
+    </div>
+    <div>
+      <i class="fa-solid fa-circle-user" style="font-size: 1.5rem;"></i>
+    </div>
+  </header>
+
+  <!-- SIDEBAR NAVIGATION DRAWER -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span>Menu Utama</span>
+      <button class="close-btn" onclick="closeSidebar()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <ul class="nav-list">
+      <li class="nav-item active" id="nav-dashboard">
+        <a href="#" onclick="showSection('dashboard')">
+          <i class="fa-solid fa-house"></i>
+          <span>Dashboard</span>
+        </a>
+      </li>
+      <li class="nav-item" id="nav-siswa">
+        <a href="#" onclick="showSection('siswa')">
+          <i class="fa-solid fa-user-graduate"></i>
+          <span>Data Siswa</span>
+        </a>
+      </li>
+      <li class="nav-item" id="nav-guru">
+        <a href="#" onclick="showSection('guru')">
+          <i class="fa-solid fa-chalkboard-user"></i>
+          <span>Data Guru</span>
+        </a>
+      </li>
+      <li class="nav-item" id="nav-alumni">
+        <a href="#" onclick="showSection('alumni')">
+          <i class="fa-solid fa-user-tie"></i>
+          <span>Data Alumni</span>
+        </a>
+      </li>
+      <li class="nav-item" id="nav-rapot">
+        <a href="#" onclick="showSection('rapot')">
+          <i class="fa-solid fa-file-invoice"></i>
+          <span>Rapot</span>
+        </a>
+      </li>
+      <li class="nav-item" id="nav-pelanggaran">
+        <a href="#" onclick="showSection('pelanggaran')">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>Pelanggaran</span>
+        </a>
+      </li>
+      <li class="nav-item" id="nav-surat">
+        <a href="#" onclick="showSection('surat')">
+          <i class="fa-solid fa-envelope-open-text"></i>
+          <span>Surat Menyurat</span>
+        </a>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- KONTEN UTAMA APLIKASI -->
+  <main class="main-content">
+    
+    <!-- 1. DASHBOARD SECTION -->
+    <div id="section-dashboard">
+      <div class="welcome-banner">
+        <h2>Selamat Datang!</h2>
+        <p>Sistem Informasi Data Sekolah Terintegrasi</p>
+      </div>
+
+      <h3 class="section-title">Akses Cepat Fitur</h3>
+      
+      <div class="menu-grid">
+        <div class="card-menu" onclick="showSection('siswa')">
+          <div class="card-icon icon-siswa">
+            <i class="fa-solid fa-user-graduate"></i>
+          </div>
+          <div class="card-title">Data Siswa</div>
+        </div>
+
+        <div class="card-menu" onclick="showSection('guru')">
+          <div class="card-icon icon-guru">
+            <i class="fa-solid fa-chalkboard-user"></i>
+          </div>
+          <div class="card-title">Data Guru</div>
+        </div>
+
+        <div class="card-menu" onclick="showSection('alumni')">
+          <div class="card-icon icon-alumni">
+            <i class="fa-solid fa-user-tie"></i>
+          </div>
+          <div class="card-title">Data Alumni</div>
+        </div>
+
+        <div class="card-menu" onclick="showSection('rapot')">
+          <div class="card-icon icon-rapot">
+            <i class="fa-solid fa-file-invoice"></i>
+          </div>
+          <div class="card-title">Rapot</div>
+        </div>
+
+        <div class="card-menu" onclick="showSection('pelanggaran')">
+          <div class="card-icon icon-pelanggaran">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <div class="card-title">Pelanggaran</div>
+        </div>
+
+        <div class="card-menu" onclick="showSection('surat')">
+          <div class="card-icon icon-surat">
+            <i class="fa-solid fa-envelope-open-text"></i>
+          </div>
+          <div class="card-title">Surat Menyurat</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. SECTION DATA SISWA -->
+    <div id="section-siswa" class="content-section">
+      <button class="btn-back" onclick="showSection('dashboard')">
+        <i class="fa-solid fa-arrow-left"></i> Kembali
+      </button>
+
+      <div class="print-header">
+        <h2>Data Siswa SMK Muhammadiyah 5 Karanganyar</h2>
+        <p id="printSubTitle"></p>
+      </div>
+
+      <div class="action-toolbar">
+        <div class="toolbar-left">
+          <select class="select-kelas" id="filterKelas" onchange="filterDataSiswa()">
+            <option value="SEMUA">-- Semua Kelas --</option>
+            <option value="X RPL 1">X RPL 1</option>
+            <option value="XI RPL 1">XI RPL 1</option>
+            <option value="XII RPL 1">XII RPL 1</option>
+          </select>
+          <button class="btn btn-primary" onclick="openModalTambah()">
+            <i class="fa-solid fa-plus"></i> Tambah Siswa
+          </button>
+        </div>
+        <div class="toolbar-right">
+          <button class="btn btn-outline" onclick="cetakPDF('SEMUA')">
+            <i class="fa-solid fa-print"></i> Cetak Semua Data
+          </button>
+          <button class="btn btn-outline" onclick="cetakPDF('KELAS')">
+            <i class="fa-solid fa-file-pdf"></i> Cetak per Kelas
+          </button>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>NIPD</th>
+              <th>NISN</th>
+              <th>Nama Lengkap</th>
+              <th>Kelas</th>
+              <th>NIK</th>
+              <th>Tempat, Tgl Lahir</th>
+              <th>Nama Ibu</th>
+              <th>Nama Ayah</th>
+            </tr>
+          </thead>
+          <tbody id="siswaTableBody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3. SECTION MENU LAINNYA -->
+    <div id="section-guru" class="content-section">
+      <button class="btn-back" onclick="showSection('dashboard')">
+        <i class="fa-solid fa-arrow-left"></i> Kembali
+      </button>
+      <h3>Halaman Data Guru</h3>
+      <p style="color: var(--text-muted); margin-top: 8px;">Halaman kelola data tenaga pengajar dan staf sekolah.</p>
+    </div>
+
+    <div id="section-alumni" class="content-section">
+      <button class="btn-back" onclick="showSection('dashboard')">
+        <i class="fa-solid fa-arrow-left"></i> Kembali
+      </button>
+      <h3>Halaman Data Alumni</h3>
+      <p style="color: var(--text-muted); margin-top: 8px;">Halaman penelusuran dan data alumni sekolah.</p>
+    </div>
+
+    <!-- SECTION RAPOT SISWA -->
+    <div id="section-rapot" class="content-section">
+      <div id="rapot-step-guru">
+        <button class="btn-back" onclick="showSection('dashboard')">
+          <i class="fa-solid fa-arrow-left"></i> Kembali
+        </button>
+        <h3 class="section-title">Pilih Guru / Mata Pelajaran</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: -10px; margin-bottom: 16px;">
+          Pilih nama guru untuk mulai menginput nilai Ujian/Rapot siswa.
+        </p>
+
+        <div class="guru-rapot-grid">
+          <div class="card-guru-rapot" onclick="pilihGuruRapot('Bambang Setyono, S.Pd', 'Pemrograman Web', 'Pemrograman Berorientasi Objek')">
+            <div class="guru-info-header">
+              <div class="guru-avatar"><i class="fa-solid fa-chalkboard-user"></i></div>
+              <div class="guru-nama">Bambang Setyono, S.Pd</div>
+            </div>
+            <div class="mapel-badge-container">
+              <span class="mapel-badge"><i class="fa-solid fa-book"></i> Pemrograman Web</span>
+              <span class="mapel-badge"><i class="fa-solid fa-book"></i> Pemrograman Berorientasi Objek</span>
+            </div>
+          </div>
+
+          <div class="card-guru-rapot" onclick="pilihGuruRapot('Siti Rahmawati, M.Pd', 'Matematika', 'Informatika')">
+            <div class="guru-info-header">
+              <div class="guru-avatar"><i class="fa-solid fa-chalkboard-user"></i></div>
+              <div class="guru-nama">Siti Rahmawati, M.Pd</div>
+            </div>
+            <div class="mapel-badge-container">
+              <span class="mapel-badge"><i class="fa-solid fa-book"></i> Matematika</span>
+              <span class="mapel-badge"><i class="fa-solid fa-book"></i> Informatika</span>
+            </div>
+          </div>
+
+          <div class="card-guru-rapot" onclick="pilihGuruRapot('Ahmad Dahlan, S.T', 'Basis Data', 'PPLG')">
+            <div class="guru-info-header">
+              <div class="guru-avatar"><i class="fa-solid fa-chalkboard-user"></i></div>
+              <div class="guru-nama">Ahmad Dahlan, S.T</div>
+            </div>
+            <div class="mapel-badge-container">
+              <span class="mapel-badge"><i class="fa-solid fa-book"></i> Basis Data</span>
+              <span class="mapel-badge"><i class="fa-solid fa-book"></i> PPLG</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="rapot-step-input" style="display: none;">
+        <button class="btn-back" onclick="kembaliKePilihGuru()">
+          <i class="fa-solid fa-arrow-left"></i> Kembali ke Pilih Guru
+        </button>
+
+        <div class="rapot-form-card">
+          <h3 id="labelGuruPengampu" style="margin-bottom: 16px; color: var(--primary-green);">
+            Input Nilai - Guru
+          </h3>
+
+          <div class="filter-rapot-grid">
+            <div class="form-group">
+              <label>Jenis Ujian</label>
+              <select class="select-kelas" id="rapotJenisUjian">
+                <option value="PTS">PTS (Penilaian Tengah Semester)</option>
+                <option value="PAS">PAS (Penilaian Akhir Semester)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Semester</label>
+              <select class="select-kelas" id="rapotSemester">
+                <option value="Semester 1">Semester 1 (Ganjil)</option>
+                <option value="Semester 2">Semester 2 (Genap)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Tahun Pelajaran</label>
+              <input type="text" id="rapotTahunPelajaran" readonly style="background-color: var(--bg-gray); font-weight: 600;">
+            </div>
+
+            <div class="form-group">
+              <label>Mata Pelajaran</label>
+              <select class="select-kelas" id="rapotMapel">
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Pilih Kelas</label>
+              <select class="select-kelas" id="rapotFilterKelas" onchange="filterSiswaRapot()">
+                <option value="">-- Pilih Kelas --</option>
+                <option value="X RPL 1">X RPL 1</option>
+                <option value="XI RPL 1">XI RPL 1</option>
+                <option value="XII RPL 1">XII RPL 1</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-container" style="margin-bottom: 20px;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width: 50px;">No</th>
+                  <th>Nama Lengkap</th>
+                  <th>Kelas</th>
+                  <th style="width: 150px; text-align: center;">Input Nilai (0-100)</th>
+                </tr>
+              </thead>
+              <tbody id="rapotSiswaTableBody">
+                <tr>
+                  <td colspan="5" style="text-align: center; padding: 20px; color: var(--text-muted);">
+                    Silakan pilih kelas terlebih dahulu untuk menampilkan data siswa.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 12px;">
+            <button type="button" class="btn btn-outline" onclick="resetFormNilaiRapot()">
+              <i class="fa-solid fa-rotate-left"></i> Reset Nilai
+            </button>
+            <button type="button" class="btn btn-primary" onclick="simpanNilaiRapot()">
+              <i class="fa-solid fa-floppy-disk"></i> Simpan Nilai
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <div id="section-pelanggaran" class="content-section">
+      <button class="btn-back" onclick="showSection('dashboard')">
+        <i class="fa-solid fa-arrow-left"></i> Kembali
+      </button>
+      <h3>Halaman Catatan Pelanggaran</h3>
+      <p style="color: var(--text-muted); margin-top: 8px;">Halaman pencatatan dan kedisiplinan siswa.</p>
+    </div>
+
+    <div id="section-surat" class="content-section">
+      <button class="btn-back" onclick="showSection('dashboard')">
+        <i class="fa-solid fa-arrow-left"></i> Kembali
+      </button>
+      <h3>Halaman Surat Menyurat</h3>
+      <p style="color: var(--text-muted); margin-top: 8px;">Halaman pembuatan surat masuk/keluar dan perizinan.</p>
+    </div>
+
+  </main>
+
+  <!-- MODAL EDIT / TAMBAH DATA SISWA -->
+  <div class="modal" id="modalSiswa">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 id="modalTitle">Detail Data Siswa</h4>
+        <button class="close-btn" style="color: var(--text-dark);" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <form id="formSiswa">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>NIPD</label>
+              <input type="text" id="inputNIPD" required>
+            </div>
+            <div class="form-group">
+              <label>NISN</label>
+              <input type="text" id="inputNISN" required>
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+              <label>Nama Lengkap</label>
+              <input type="text" id="inputNama" required>
+            </div>
+            <div class="form-group">
+              <label>Kelas</label>
+              <input type="text" id="inputKelas">
+            </div>
+            <div class="form-group">
+              <label>NIK</label>
+              <input type="text" id="inputNIK">
+            </div>
+            <div class="form-group">
+              <label>Tempat, Tgl Lahir</label>
+              <input type="text" id="inputTTL">
+            </div>
+            <div class="form-group">
+              <label>Nama Ibu</label>
+              <input type="text" id="inputIbu">
+            </div>
+            <div class="form-group">
+              <label>Nama Ayah</label>
+              <input type="text" id="inputAyah">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" id="btnHapus" onclick="hapusSiswa()"><i class="fa-solid fa-trash"></i> Hapus Siswa</button>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn btn-outline" onclick="closeModal()">Batal</button>
+          <button type="button" class="btn btn-primary" onclick="simpanSiswa()"><i class="fa-solid fa-floppy-disk"></i> Simpan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL POPUP PERINGATAN TOMBOL BACK BROWSER -->
+  <div class="modal" id="modalBackWarning">
+    <div class="modal-content" style="max-width: 400px; text-align: center;">
+      <div class="modal-header" style="justify-content: center; border-bottom: none; padding-bottom: 0;">
+        <i class="fa-solid fa-triangle-exclamation" style="font-size: 3rem; color: var(--accent-red);"></i>
+      </div>
+      <div class="modal-body">
+        <h3 style="margin-bottom: 8px;">Aksi Tidak Diizinkan</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">
+          Navigasi kembali melalui tombol browser tidak diperbolehkan. Silakan gunakan tombol navigasi/kembali yang tersedia di dalam aplikasi.
+        </p>
+      </div>
+      <div class="modal-footer" style="justify-content: center; border-top: none; padding-top: 0;">
+        <button type="button" class="btn btn-primary" onclick="closeBackWarning()">Saya Mengerti</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIKA APLIKASI -->
+  <script>
+    /* ==========================================================================
+       LOGIKA PENCEGAHAN NAVIGASI BACK BROWSER (DESKTOP & MOBILE)
+       ========================================================================== */
+
+    // 1. Kunci riwayat browser dengan memasukkan state dummy
+    function lockBrowserHistory() {
+      window.history.pushState({ page: 'app' }, "", window.location.href);
+    }
+
+    // Inisialisasi awal saat halaman dimuat
+    lockBrowserHistory();
+
+    // Kunci ulang pada sentuhan pertama pengguna di perangkat mobile
+    window.addEventListener('touchstart', function() {
+      lockBrowserHistory();
+    }, { once: true });
+
+    // 2. Tangkap event popstate saat tombol 'Back' browser / gestur mobile dipicu
+    window.addEventListener('popstate', function (event) {
+      // Masukkan kembali state ke history agar tidak keluar halaman
+      lockBrowserHistory();
+      
+      // Tampilkan popup modal pemberitahuan
+      document.getElementById('modalBackWarning').classList.add('active');
+    });
+
+    // 3. Fungsi untuk menutup popup peringatan tombol back
+    function closeBackWarning() {
+      document.getElementById('modalBackWarning').classList.remove('active');
+    }
+
+    /* ==========================================================================
+       LOGIKA NAVIGASI SIDEBAR & TAMPILAN SECTION
+       ========================================================================== */
+    
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('active');
+      document.getElementById('overlay').classList.toggle('active');
+    }
+
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('active');
+      document.getElementById('overlay').classList.remove('active');
+    }
+
+    function showSection(sectionId) {
+      document.getElementById('section-dashboard').style.display = (sectionId === 'dashboard') ? 'block' : 'none';
+
+      const sections = document.querySelectorAll('.content-section');
+      sections.forEach(sec => sec.classList.remove('active'));
+
+      if (sectionId !== 'dashboard') {
+        const targetSection = document.getElementById('section-' + sectionId);
+        if (targetSection) {
+          targetSection.classList.add('active');
+        }
+      }
+
+      const navItems = document.querySelectorAll('.nav-item');
+      navItems.forEach(item => item.classList.remove('active'));
+
+      const activeNavItem = document.getElementById('nav-' + sectionId);
+      if (activeNavItem) {
+        activeNavItem.classList.add('active');
+      }
+
+      closeSidebar();
+    }
+
+    /* ==========================================================================
+       LOGIKA MANAJEMEN DATA SISWA (TABEL, FILTER, & CETAK)
+       ========================================================================== */
+
+    const masterSiswa = [
+      { nipd: '2324101', nisn: '0061234567', nama: 'Ahmad Fauzi', kelas: 'X RPL 1', nik: '3201234567890001', ttl: 'Karanganyar, 12-05-2007', ibu: 'Siti Aminah', ayah: 'Budi Santoso' },
+      { nipd: '2324102', nisn: '0067654321', nama: 'Siti Nurhaliza', kelas: 'XI RPL 1', nik: '3201234567890002', ttl: 'Solo, 20-08-2007', ibu: 'Dewi Lestari', ayah: 'Agus Prayitno' },
+      { nipd: '2324103', nisn: '0069988776', nama: 'Budi Perkasa', kelas: 'XII RPL 1', nik: '3201234567890003', ttl: 'Karanganyar, 01-01-2006', ibu: 'Rina Wati', ayah: 'Joko Susilo' },
+      { nipd: '2324104', nisn: '0064433221', nama: 'Dewi Sartika', kelas: 'X RPL 1', nik: '3201234567890004', ttl: 'Sragen, 15-03-2007', ibu: 'Sri Wahyuni', ayah: 'Eko Prasetyo' }
+    ];
+
+    function renderTabelSiswa(data) {
+      const tbody = document.getElementById('siswaTableBody');
+      tbody.innerHTML = '';
+
+      if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 20px;">Tidak ada data siswa untuk kelas ini.</td></tr>`;
+        return;
+      }
+
+      data.forEach((s, index) => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${s.nipd}</td>
+            <td>${s.nisn}</td>
+            <td><span class="student-name" onclick="openModalEdit('${s.nama}', '${s.nipd}', '${s.nisn}', '${s.kelas}', '${s.nik}', '${s.ttl}', '${s.ibu}', '${s.ayah}')">${s.nama}</span></td>
+            <td><strong>${s.kelas}</strong></td>
+            <td>${s.nik}</td>
+            <td>${s.ttl}</td>
+            <td>${s.ibu}</td>
+            <td>${s.ayah}</td>
+          </tr>
+        `;
+      });
+    }
+
+    function filterDataSiswa() {
+      const kelasPilihan = document.getElementById('filterKelas').value;
+      if (kelasPilihan === 'SEMUA') {
+        renderTabelSiswa(masterSiswa);
+      } else {
+        const filtered = masterSiswa.filter(s => s.kelas === kelasPilihan);
+        renderTabelSiswa(filtered);
+      }
+    }
+
+    function cetakPDF(tipe) {
+      const kelasPilihan = document.getElementById('filterKelas').value;
+      const printSubTitle = document.getElementById('printSubTitle');
+
+      if (tipe === 'SEMUA') {
+        renderTabelSiswa(masterSiswa);
+        printSubTitle.innerText = '';
+        document.getElementById('filterKelas').value = 'SEMUA';
+      } else if (tipe === 'KELAS') {
+        if (kelasPilihan === 'SEMUA') {
+          alert('Pilih kelas terlebih dahulu pada dropdown sebelum mencetak per Kelas!');
+          return;
+        }
+        filterDataSiswa();
+        printSubTitle.innerText = 'Kelas : ' + kelasPilihan;
+      }
+
+      setTimeout(() => {
+        window.print();
+      }, 300);
+    }
+
+    /* ==========================================================================
+       LOGIKA MODAL POPUP (EDIT & TAMBAH SISWA)
+       ========================================================================== */
+
+    function openModalEdit(nama, nipd, nisn, kelas, nik, ttl, ibu, ayah) {
+      document.getElementById('modalTitle').innerText = 'Edit Data Siswa';
+      document.getElementById('inputNama').value = nama;
+      document.getElementById('inputNIPD').value = nipd;
+      document.getElementById('inputNISN').value = nisn;
+      document.getElementById('inputKelas').value = kelas;
+      document.getElementById('inputNIK').value = nik;
+      document.getElementById('inputTTL').value = ttl;
+      document.getElementById('inputIbu').value = ibu;
+      document.getElementById('inputAyah').value = ayah;
+      
+      document.getElementById('btnHapus').style.display = 'inline-flex';
+      document.getElementById('modalSiswa').classList.add('active');
+    }
+
+    function openModalTambah() {
+      document.getElementById('modalTitle').innerText = 'Tambah Siswa Baru';
+      document.getElementById('formSiswa').reset();
+      document.getElementById('btnHapus').style.display = 'none';
+      document.getElementById('modalSiswa').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('modalSiswa').classList.remove('active');
+    }
+
+    function simpanSiswa() {
+      alert('Simpan Data Berhasil!');
+      closeModal();
+    }
+
+    function hapusSiswa() {
+      if (confirm('Apakah Anda yakin ingin menghapus data siswa ini?')) {
+        alert('Data berhasil dihapus!');
+        closeModal();
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderTabelSiswa(masterSiswa);
+    });
+
+    /* ==========================================================================
+       LOGIKA UNTUK LAMAN RAPOT SISWA
+       ========================================================================== */
+
+    let guruAktif = "";
+
+    function pilihGuruRapot(namaGuru, mapel1, mapel2) {
+      guruAktif = namaGuru;
+      document.getElementById('labelGuruPengampu').innerText = 'Input Nilai - ' + namaGuru;
+
+      const selectMapel = document.getElementById('rapotMapel');
+      selectMapel.innerHTML = `
+        <option value="${mapel1}">${mapel1}</option>
+        <option value="${mapel2}">${mapel2}</option>
+      `;
+
+      const tahunSekarang = new Date().getFullYear();
+      document.getElementById('rapotTahunPelajaran').value = tahunSekarang + " / " + (tahunSekarang + 1);
+
+      document.getElementById('rapot-step-guru').style.display = 'none';
+      document.getElementById('rapot-step-input').style.display = 'block';
+
+      document.getElementById('rapotFilterKelas').value = "";
+      document.getElementById('rapotSiswaTableBody').innerHTML = `
+        <tr>
+          <td colspan="5" style="text-align: center; padding: 20px; color: var(--text-muted);">
+            Silakan pilih kelas terlebih dahulu untuk menampilkan data siswa.
+          </td>
+        </tr>
+      `;
+    }
+
+    function kembaliKePilihGuru() {
+      document.getElementById('rapot-step-input').style.display = 'none';
+      document.getElementById('rapot-step-guru').style.display = 'block';
+    }
+
+    function filterSiswaRapot() {
+      const kelasPilihan = document.getElementById('rapotFilterKelas').value;
+      const tbody = document.getElementById('rapotSiswaTableBody');
+      tbody.innerHTML = '';
+
+      if (!kelasPilihan) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align: center; padding: 20px; color: var(--text-muted);">
+              Silakan pilih kelas terlebih dahulu untuk menampilkan data siswa.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      const dataSiswaFilter = masterSiswa.filter(s => s.kelas === kelasPilihan);
+
+      if (dataSiswaFilter.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align: center; padding: 20px; color: var(--text-muted);">
+              Tidak ada data siswa ditemukan untuk kelas ${kelasPilihan}.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      dataSiswaFilter.forEach((s, index) => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${index + 1}</td>
+            <td><strong>${s.nama}</strong></td>
+            <td>${s.kelas}</td>
+            <td style="text-align: center;">
+              <input type="number" min="0" max="100" class="input-nilai-rapot" placeholder="0-100" data-nisn="${s.nisn}">
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function resetFormNilaiRapot() {
+      if (confirm('Apakah Anda yakin ingin mengosongkan semua isian nilai di tabel?')) {
+        const inputs = document.querySelectorAll('.input-nilai-rapot');
+        inputs.forEach(input => input.value = '');
+      }
+    }
+
+    function simpanNilaiRapot() {
+      const kelas = document.getElementById('rapotFilterKelas').value;
+      const mapel = document.getElementById('rapotMapel').value;
+      const jenisUjian = document.getElementById('rapotJenisUjian').value;
+      const semester = document.getElementById('rapotSemester').value;
+
+      if (!kelas) {
+        alert('Harap pilih kelas terlebih dahulu!');
+        return;
+      }
+
+      const listInput = document.querySelectorAll('.input-nilai-rapot');
+      const rekapNilai = [];
+
+      listInput.forEach(input => {
+        if (input.value !== "") {
+          rekapNilai.push({
+            nisn: input.getAttribute('data-nisn'),
+            nilai: input.value
+          });
+        }
+      });
+
+      if (rekapNilai.length === 0) {
+        alert('Belum ada nilai siswa yang diisi!');
+        return;
+      }
+
+      alert(`Berhasil menyimpan ${rekapNilai.length} nilai siswa!\n` +
+            `Mapel: ${mapel}\n` +
+            `Ujian: ${jenisUjian} (${semester})\n` +
+            `Kelas: ${kelas}`);
+    }
+  </script>
+</body>
+</html>
