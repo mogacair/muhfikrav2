@@ -21,7 +21,7 @@
       --border-gray: #E0E0E0;      /* Abu-abu Garis Pembatas/Tabel */
       --text-dark: #212121;        /* Teks Utama */
       --text-muted: #757575;       /* Teks Sekunder/Sub-informasi */
-      --accent-red: #D32F2F;       /* Merah (Tombol Kembali Mengambang & Hapus) */
+      --accent-red: #D32F2F;       /* Merah (Tombol Kembali Mengambang) */
       --red-hover: #B71C1C;        /* Merah Gelap untuk Hover */
       --red-light: #FFEBEE;
       --accent-yellow: #FBC02D;    /* Kuning (Status Rapot / Aksen) */
@@ -171,7 +171,7 @@
       padding: 20px;
       border-radius: 12px;
       border: 1px solid var(--border-gray);
-      margin-top: 50px; /* Beri ruang jarak atas untuk tombol mengambang */
+      margin-top: 50px;
     }
 
     .content-section.active {
@@ -345,7 +345,7 @@
       padding: 16px 20px;
       border-top: 1px solid var(--border-gray);
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end; /* Diubah menjadi rata kanan karena tombol hapus dihilangkan */
       gap: 12px;
     }
 
@@ -552,7 +552,7 @@
 
       .btn-back-floating {
         top: 76px;
-        left: calc((100vw - 1200px) / 2 + 24px); /* Posisikan sejajar dengan margin container desktop */
+        left: calc((100vw - 1200px) / 2 + 24px);
       }
     }
 
@@ -646,15 +646,19 @@
 
       <div class="action-toolbar">
         <div class="toolbar-left">
+          <!-- Filter Kelas -->
           <select class="select-kelas" id="filterKelas" onchange="filterDataSiswa()">
             <option value="SEMUA">-- Semua Kelas --</option>
             <option value="X RPL 1">X RPL 1</option>
             <option value="XI RPL 1">XI RPL 1</option>
             <option value="XII RPL 1">XII RPL 1</option>
           </select>
-          <button class="btn btn-primary" onclick="openModalTambah()">
-            <i class="fa-solid fa-plus"></i> Tambah Siswa
-          </button>
+          
+          <!-- Dropdown Pilihan Batas Jumlah Data yang Ditampilkan -->
+          <select class="select-kelas" id="limitSiswa" onchange="filterDataSiswa()">
+            <option value="10">10 Baris</option>
+            <option value="SEMUA">Semua Data</option>
+          </select>
         </div>
         <div class="toolbar-right">
           <button class="btn btn-outline" onclick="cetakPDF('SEMUA')">
@@ -852,7 +856,7 @@
 
   </main>
 
-  <!-- MODAL EDIT / TAMBAH DATA SISWA -->
+  <!-- MODAL EDIT DATA SISWA -->
   <div class="modal" id="modalSiswa">
     <div class="modal-content">
       <div class="modal-header">
@@ -868,7 +872,7 @@
             </div>
             <div class="form-group">
               <label>NISN</label>
-              <input type="text" id="inputNISN" required>
+              <input type="text" id="inputNISN" required readonly>
             </div>
             <div class="form-group" style="grid-column: span 2;">
               <label>Nama Lengkap</label>
@@ -898,11 +902,9 @@
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-danger" id="btnHapus" onclick="hapusSiswa()"><i class="fa-solid fa-trash"></i> Hapus Siswa</button>
-        <div style="display: flex; gap: 8px;">
-          <button type="button" class="btn btn-outline" onclick="closeModal()">Batal</button>
-          <button type="button" class="btn btn-primary" onclick="simpanSiswa()"><i class="fa-solid fa-floppy-disk"></i> Simpan</button>
-        </div>
+        <!-- Tombol Hapus Siswa telah dihilangkan dari sini -->
+        <button type="button" class="btn btn-outline" onclick="closeModal()">Batal</button>
+        <button type="button" class="btn btn-primary" onclick="simpanSiswa()"><i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan</button>
       </div>
     </div>
   </div>
@@ -927,12 +929,12 @@
 
   <!-- JAVASCRIPT LOGIKA APLIKASI -->
   <script>
-    // ==========================================================================
-    // INTEGRASI GOOGLE APPS SCRIPT (GAS) - DB SISWA
-    // ==========================================================================
+    /* ==========================================================================
+       INTEGRASI GOOGLE APPS SCRIPT (GAS) - DB SISWA
+       ========================================================================== */
     
-    // TEMPELKAN URL WEB APP ANDA DI SINI:
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbw6qL109DDVPZNs4VVRcy5GM8ISVQvf_2by3ikBVbiYKg6WYzR1sCxqOJRIsYLSgVPc/exec"; 
+    // TEMPELKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyc9E53-T04I-p_R6_b3PkW5fI_w9_3PkW5fI/exec"; 
 
     let masterSiswa = [];
 
@@ -946,7 +948,7 @@
         .then(response => {
           if (response.status === "success") {
             masterSiswa = response.data;
-            renderTabelSiswa(masterSiswa);
+            filterDataSiswa(); // Tampilkan data sesuai filter & batas 10 baris
           } else {
             alert("Gagal memuat data: " + response.message);
           }
@@ -957,12 +959,10 @@
         });
     }
 
-    // 2. Fungsi Simpan (Tambah / Edit) Data ke Google Sheets (POST)
+    // 2. Fungsi Simpan (Update Edit) Data ke Google Sheets (POST)
     function simpanSiswa() {
-      const isTambah = document.getElementById('modalTitle').innerText.includes('Tambah');
-      
       const payload = {
-        action: isTambah ? "CREATE" : "UPDATE",
+        action: "UPDATE",
         nipd: document.getElementById('inputNIPD').value,
         nisn: document.getElementById('inputNISN').value,
         nama: document.getElementById('inputNama').value,
@@ -973,8 +973,7 @@
         ayah: document.getElementById('inputAyah').value
       };
 
-      // Tampilkan indikator proses
-      alert("Sedang menyimpan data ke Google Sheets, mohon tunggu...");
+      alert("Sedang menyimpan perubahan ke Google Sheets, mohon tunggu...");
 
       fetch(GAS_API_URL, {
         method: "POST",
@@ -984,39 +983,12 @@
       .then(res => {
         alert(res.message);
         closeModal();
-        muatDataSiswaDariGAS(); // Reload otomatis tabel dari Google Sheets
+        muatDataSiswaDariGAS(); // Reload otomatis data
       })
       .catch(err => {
         console.error("Error:", err);
         alert("Gagal menyimpan data ke Google Sheets.");
       });
-    }
-
-    // 3. Fungsi Hapus Data dari Google Sheets (POST)
-    function hapusSiswa() {
-      if (confirm('Apakah Anda yakin ingin menghapus data siswa ini?')) {
-        const payload = {
-          action: "DELETE",
-          nisn: document.getElementById('inputNISN').value
-        };
-
-        alert("Sedang menghapus data dari Google Sheets, mohon tunggu...");
-
-        fetch(GAS_API_URL, {
-          method: "POST",
-          body: JSON.stringify(payload)
-        })
-        .then(res => res.json())
-        .then(res => {
-          alert(res.message);
-          closeModal();
-          muatDataSiswaDariGAS(); // Reload otomatis tabel dari Google Sheets
-        })
-        .catch(err => {
-          console.error("Error:", err);
-          alert("Gagal menghapus data dari Google Sheets.");
-        });
-      }
     }
 
     /* ==========================================================================
@@ -1092,14 +1064,25 @@
       });
     }
 
+    // Fungsi Filter Data berdasarkan Kelas dan Batas Tampilan Baris (10 / Semua)
     function filterDataSiswa() {
       const kelasPilihan = document.getElementById('filterKelas').value;
-      if (kelasPilihan === 'SEMUA') {
-        renderTabelSiswa(masterSiswa);
-      } else {
-        const filtered = masterSiswa.filter(s => s.kelas === kelasPilihan);
-        renderTabelSiswa(filtered);
+      const limitPilihan = document.getElementById('limitSiswa').value;
+
+      let filtered = masterSiswa;
+
+      // 1. Filter Kelas
+      if (kelasPilihan !== 'SEMUA') {
+        filtered = masterSiswa.filter(s => s.kelas === kelasPilihan);
       }
+
+      // 2. Filter Jumlah Baris (10 / Semua)
+      if (limitPilihan !== 'SEMUA') {
+        const limit = parseInt(limitPilihan, 10);
+        filtered = filtered.slice(0, limit);
+      }
+
+      renderTabelSiswa(filtered);
     }
 
     function cetakPDF(tipe) {
@@ -1107,15 +1090,18 @@
       const printSubTitle = document.getElementById('printSubTitle');
 
       if (tipe === 'SEMUA') {
+        document.getElementById('filterKelas').value = 'SEMUA';
+        document.getElementById('limitSiswa').value = 'SEMUA';
         renderTabelSiswa(masterSiswa);
         printSubTitle.innerText = '';
-        document.getElementById('filterKelas').value = 'SEMUA';
       } else if (tipe === 'KELAS') {
         if (kelasPilihan === 'SEMUA') {
           alert('Pilih kelas terlebih dahulu pada dropdown sebelum mencetak per Kelas!');
           return;
         }
-        filterDataSiswa();
+        document.getElementById('limitSiswa').value = 'SEMUA';
+        const filtered = masterSiswa.filter(s => s.kelas === kelasPilihan);
+        renderTabelSiswa(filtered);
         printSubTitle.innerText = 'Kelas : ' + kelasPilihan;
       }
 
@@ -1125,7 +1111,7 @@
     }
 
     /* ==========================================================================
-       LOGIKA MODAL POPUP (EDIT & TAMBAH SISWA)
+       LOGIKA MODAL POPUP EDIT DATA SISWA
        ========================================================================== */
 
     function openModalEdit(nama, nipd, nisn, kelas, nik, ttl, ibu, ayah) {
@@ -1139,18 +1125,6 @@
       document.getElementById('inputIbu').value = ibu;
       document.getElementById('inputAyah').value = ayah;
       
-      // NISN dibuat readonly saat edit karena dipakai sebagai acuan kunci pencarian di Google Sheets
-      document.getElementById('inputNISN').readOnly = true; 
-      
-      document.getElementById('btnHapus').style.display = 'inline-flex';
-      document.getElementById('modalSiswa').classList.add('active');
-    }
-
-    function openModalTambah() {
-      document.getElementById('modalTitle').innerText = 'Tambah Siswa Baru';
-      document.getElementById('formSiswa').reset();
-      document.getElementById('inputNISN').readOnly = false;
-      document.getElementById('btnHapus').style.display = 'none';
       document.getElementById('modalSiswa').classList.add('active');
     }
 
@@ -1158,7 +1132,6 @@
       document.getElementById('modalSiswa').classList.remove('active');
     }
 
-    // Panggil pengambilan data otomatis saat halaman selesai dimuat
     document.addEventListener('DOMContentLoaded', () => {
       muatDataSiswaDariGAS();
     });
