@@ -927,6 +927,98 @@
 
   <!-- JAVASCRIPT LOGIKA APLIKASI -->
   <script>
+    // ==========================================================================
+    // INTEGRASI GOOGLE APPS SCRIPT (GAS) - DB SISWA
+    // ==========================================================================
+    
+    // TEMPELKAN URL WEB APP ANDA DI SINI:
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbw6qL109DDVPZNs4VVRcy5GM8ISVQvf_2by3ikBVbiYKg6WYzR1sCxqOJRIsYLSgVPc/exec"; 
+
+    let masterSiswa = [];
+
+    // 1. Fungsi Mengambil Data Siswa dari Google Sheets (GET)
+    function muatDataSiswaDariGAS() {
+      const tbody = document.getElementById('siswaTableBody');
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 20px;">Memuat data dari Google Sheets...</td></tr>`;
+
+      fetch(GAS_API_URL)
+        .then(res => res.json())
+        .then(response => {
+          if (response.status === "success") {
+            masterSiswa = response.data;
+            renderTabelSiswa(masterSiswa);
+          } else {
+            alert("Gagal memuat data: " + response.message);
+          }
+        })
+        .catch(err => {
+          console.error("Error:", err);
+          tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 20px; color: var(--accent-red);">Gagal terhubung ke Google Sheets. Pastikan URL Web App sudah benar.</td></tr>`;
+        });
+    }
+
+    // 2. Fungsi Simpan (Tambah / Edit) Data ke Google Sheets (POST)
+    function simpanSiswa() {
+      const isTambah = document.getElementById('modalTitle').innerText.includes('Tambah');
+      
+      const payload = {
+        action: isTambah ? "CREATE" : "UPDATE",
+        nipd: document.getElementById('inputNIPD').value,
+        nisn: document.getElementById('inputNISN').value,
+        nama: document.getElementById('inputNama').value,
+        kelas: document.getElementById('inputKelas').value,
+        nik: document.getElementById('inputNIK').value,
+        ttl: document.getElementById('inputTTL').value,
+        ibu: document.getElementById('inputIbu').value,
+        ayah: document.getElementById('inputAyah').value
+      };
+
+      // Tampilkan indikator proses
+      alert("Sedang menyimpan data ke Google Sheets, mohon tunggu...");
+
+      fetch(GAS_API_URL, {
+        method: "POST",
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(res => {
+        alert(res.message);
+        closeModal();
+        muatDataSiswaDariGAS(); // Reload otomatis tabel dari Google Sheets
+      })
+      .catch(err => {
+        console.error("Error:", err);
+        alert("Gagal menyimpan data ke Google Sheets.");
+      });
+    }
+
+    // 3. Fungsi Hapus Data dari Google Sheets (POST)
+    function hapusSiswa() {
+      if (confirm('Apakah Anda yakin ingin menghapus data siswa ini?')) {
+        const payload = {
+          action: "DELETE",
+          nisn: document.getElementById('inputNISN').value
+        };
+
+        alert("Sedang menghapus data dari Google Sheets, mohon tunggu...");
+
+        fetch(GAS_API_URL, {
+          method: "POST",
+          body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(res => {
+          alert(res.message);
+          closeModal();
+          muatDataSiswaDariGAS(); // Reload otomatis tabel dari Google Sheets
+        })
+        .catch(err => {
+          console.error("Error:", err);
+          alert("Gagal menghapus data dari Google Sheets.");
+        });
+      }
+    }
+
     /* ==========================================================================
        LOGIKA PENCEGAHAN NAVIGASI BACK BROWSER (DESKTOP & MOBILE)
        ========================================================================== */
@@ -967,27 +1059,19 @@
         }
       }
 
-      // Selalu scroll halus ke atas saat berganti halaman/section
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     /* ==========================================================================
-       LOGIKA MANAJEMEN DATA SISWA (TABEL, FILTER, & CETAK)
+       LOGIKA MANAJEMEN DATA SISWA (RENDER, FILTER, & CETAK)
        ========================================================================== */
-
-    const masterSiswa = [
-      { nipd: '2324101', nisn: '0061234567', nama: 'Ahmad Fauzi', kelas: 'X RPL 1', nik: '3201234567890001', ttl: 'Karanganyar, 12-05-2007', ibu: 'Siti Aminah', ayah: 'Budi Santoso' },
-      { nipd: '2324102', nisn: '0067654321', nama: 'Siti Nurhaliza', kelas: 'XI RPL 1', nik: '3201234567890002', ttl: 'Solo, 20-08-2007', ibu: 'Dewi Lestari', ayah: 'Agus Prayitno' },
-      { nipd: '2324103', nisn: '0069988776', nama: 'Budi Perkasa', kelas: 'XII RPL 1', nik: '3201234567890003', ttl: 'Karanganyar, 01-01-2006', ibu: 'Rina Wati', ayah: 'Joko Susilo' },
-      { nipd: '2324104', nisn: '0064433221', nama: 'Dewi Sartika', kelas: 'X RPL 1', nik: '3201234567890004', ttl: 'Sragen, 15-03-2007', ibu: 'Sri Wahyuni', ayah: 'Eko Prasetyo' }
-    ];
 
     function renderTabelSiswa(data) {
       const tbody = document.getElementById('siswaTableBody');
       tbody.innerHTML = '';
 
-      if (data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 20px;">Tidak ada data siswa untuk kelas ini.</td></tr>`;
+      if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 20px;">Tidak ada data siswa.</td></tr>`;
         return;
       }
 
@@ -1055,6 +1139,9 @@
       document.getElementById('inputIbu').value = ibu;
       document.getElementById('inputAyah').value = ayah;
       
+      // NISN dibuat readonly saat edit karena dipakai sebagai acuan kunci pencarian di Google Sheets
+      document.getElementById('inputNISN').readOnly = true; 
+      
       document.getElementById('btnHapus').style.display = 'inline-flex';
       document.getElementById('modalSiswa').classList.add('active');
     }
@@ -1062,6 +1149,7 @@
     function openModalTambah() {
       document.getElementById('modalTitle').innerText = 'Tambah Siswa Baru';
       document.getElementById('formSiswa').reset();
+      document.getElementById('inputNISN').readOnly = false;
       document.getElementById('btnHapus').style.display = 'none';
       document.getElementById('modalSiswa').classList.add('active');
     }
@@ -1070,20 +1158,9 @@
       document.getElementById('modalSiswa').classList.remove('active');
     }
 
-    function simpanSiswa() {
-      alert('Simpan Data Berhasil!');
-      closeModal();
-    }
-
-    function hapusSiswa() {
-      if (confirm('Apakah Anda yakin ingin menghapus data siswa ini?')) {
-        alert('Data berhasil dihapus!');
-        closeModal();
-      }
-    }
-
+    // Panggil pengambilan data otomatis saat halaman selesai dimuat
     document.addEventListener('DOMContentLoaded', () => {
-      renderTabelSiswa(masterSiswa);
+      muatDataSiswaDariGAS();
     });
 
     /* ==========================================================================
