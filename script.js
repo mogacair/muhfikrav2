@@ -49,7 +49,7 @@ if (isIndexPage) {
 if (isSiswaPage) {
   let isModalOpen = false;
 
-  // Set state dasar halaman Data Siswa
+  // Set riwayat dasar halaman Data Siswa
   history.replaceState({ modalOpen: false }, '');
 
   // Render Baris Tabel
@@ -77,6 +77,44 @@ if (isSiswaPage) {
       `;
       tbody.appendChild(tr);
     });
+  }
+
+  // Fungsi Filter Gabungan (Kelas + Kata Kunci Pencarian)
+  function applyCombinedFilter() {
+    const filterKelas = document.getElementById('filterKelas');
+    const searchInput = document.getElementById('searchInput');
+
+    const selectedClass = filterKelas ? filterKelas.value : 'SEMUA';
+    const keyword = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+    const filtered = studentData.filter(item => {
+      const kelasVal = (item.kelas || item.KELAS || '').toString();
+      const namaVal = (item.nama || item.NAMA || '').toString().toLowerCase();
+      const nisnVal = (item.nisn || item.NISN || '').toString().toLowerCase();
+
+      // Cocokkan kelas
+      const matchesClass = (selectedClass === 'SEMUA') || (kelasVal === selectedClass);
+      
+      // Cocokkan kata kunci pencarian (Nama atau NISN)
+      const matchesKeyword = (keyword === '') || namaVal.includes(keyword) || nisnVal.includes(keyword);
+
+      return matchesClass && matchesKeyword;
+    });
+
+    renderTable(filtered);
+    return filtered;
+  }
+
+  // Event Listener Input Pencarian
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', applyCombinedFilter);
+  }
+
+  // Event Listener Filter Kelas
+  const filterKelas = document.getElementById('filterKelas');
+  if (filterKelas) {
+    filterKelas.addEventListener('change', applyCombinedFilter);
   }
 
   // Tampilkan Modal Detail Siswa
@@ -125,7 +163,7 @@ if (isSiswaPage) {
     history.pushState({ modalOpen: true }, '');
   };
 
-  // Sembunyikan Modal Tampilan
+  // Tutup Tampilan Modal
   function hideModalUI() {
     const modal = document.getElementById('modalDetail');
     if (modal) {
@@ -134,7 +172,7 @@ if (isSiswaPage) {
     isModalOpen = false;
   }
 
-  // Event Tombol Tutup (X) & Klik Luar Area Modal
+  // Event Tombol Silang (X)
   const btnCloseModal = document.getElementById('btnCloseModal');
   if (btnCloseModal) {
     btnCloseModal.addEventListener('click', () => {
@@ -144,6 +182,7 @@ if (isSiswaPage) {
     });
   }
 
+  // Event Klik Luar Modal Sheet
   const modalDetail = document.getElementById('modalDetail');
   if (modalDetail) {
     modalDetail.addEventListener('click', (e) => {
@@ -165,7 +204,7 @@ if (isSiswaPage) {
     });
   }
 
-  // Penanganan Tombol Kembali / Gestur Back Browser
+  // Penanganan Tombol Kembali / Back Gesture Browser
   window.onpopstate = function () {
     if (isModalOpen) {
       hideModalUI();
@@ -174,30 +213,13 @@ if (isSiswaPage) {
     }
   };
 
-  // Filter Berdasarkan Kelas
-  const filterKelas = document.getElementById('filterKelas');
-  if (filterKelas) {
-    filterKelas.addEventListener('change', (e) => {
-      const selected = e.target.value;
-      if (selected === 'SEMUA') {
-        renderTable(studentData);
-      } else {
-        const filtered = studentData.filter(s => (s.kelas || s.KELAS) === selected);
-        renderTable(filtered);
-      }
-    });
-  }
-
-  // Download Excel via SheetJS
+  // Download Excel via SheetJS (Sesuai hasil filter/pencarian yang tampil)
   const btnExport = document.getElementById('btnExport');
   if (btnExport) {
     btnExport.addEventListener('click', () => {
-      const filterVal = filterKelas ? filterKelas.value : 'SEMUA';
-      const dataToExport = (filterVal === 'SEMUA') 
-        ? studentData 
-        : studentData.filter(s => (s.kelas || s.KELAS) === filterVal);
+      const dataToExport = applyCombinedFilter();
 
-      if (dataToExport.length === 0) {
+      if (!dataToExport || dataToExport.length === 0) {
         alert('Tidak ada data untuk diunduh.');
         return;
       }
@@ -214,6 +236,7 @@ if (isSiswaPage) {
         "ALAMAT": s.alamat || s.ALAMAT || ""
       }));
 
+      const filterVal = filterKelas ? filterKelas.value : 'SEMUA';
       const worksheet = XLSX.utils.json_to_sheet(formattedData);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Data Siswa");
@@ -245,7 +268,7 @@ if (isSiswaPage) {
           });
         }
 
-        renderTable(studentData);
+        applyCombinedFilter();
       } else {
         throw new Error(result.message || "Format respons tidak sesuai");
       }
