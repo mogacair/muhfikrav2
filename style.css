@@ -199,7 +199,7 @@ body {
 .action-bar {
   display: flex;
   gap: 10px;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
 }
 
 .select-filter {
@@ -238,6 +238,43 @@ body {
 .btn-download:active {
   transform: scale(0.96);
   opacity: 0.9;
+}
+
+/* Input Pencarian */
+.search-box {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 6px 14px;
+  margin-bottom: 18px;
+  transition: border-color 0.2s ease;
+}
+
+.search-box:focus-within {
+  border-color: var(--color-primary);
+}
+
+.search-icon {
+  font-size: 1.1rem;
+  margin-right: 10px;
+  opacity: 0.6;
+}
+
+.input-search {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  color: var(--color-text-main);
+  font-weight: 500;
+  background: transparent;
+}
+
+.input-search::placeholder {
+  color: #9e9e9e;
+  font-size: 0.95rem;
 }
 
 /* Tabel Data */
