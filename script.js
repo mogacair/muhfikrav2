@@ -1,38 +1,9 @@
 /* ==========================================================================
-   1. DATA CONTOH
+   1. KONFIGURASI URL GOOGLE APPS SCRIPT
    ========================================================================== */
-let studentData = [
-  {
-    nipd: "21221001",
-    nisn: "0061234567",
-    nama: "Ahmad Fauzi",
-    kelas: "X RPL 1",
-    jk: "Laki-laki",
-    ttl: "Surakarta, 12 Januari 2008",
-    ibu: "Siti Rahmawati",
-    alamat: "Jl. Lawu No. 15, Karanganyar"
-  },
-  {
-    nipd: "21221002",
-    nisn: "0067654321",
-    nama: "Budi Santoso",
-    kelas: "X RPL 2",
-    jk: "Laki-laki",
-    ttl: "Surakarta, 24 Mei 2008",
-    ibu: "Sri Hartati",
-    alamat: "Jl. Palur Raya No. 4, Karanganyar"
-  },
-  {
-    nipd: "20211045",
-    nisn: "0059876543",
-    nama: "Dewi Anggraini",
-    kelas: "XI RPL 1",
-    jk: "Perempuan",
-    ttl: "Wonogiri, 08 Agustus 2007",
-    ibu: "Endang Mulyani",
-    alamat: "Dusun Pokoh Kidul, Wonogiri"
-  }
-];
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwO_Iw2FEYIQ-wfijUH7YKjHsApNHjXro6oU6IAZjdbkwJ7np2ZT2sy4XvHIsACOF00/exec";
+
+let studentData = [];
 
 /* ==========================================================================
    2. DETEKSI HALAMAN AKTIF
@@ -78,24 +49,31 @@ if (isIndexPage) {
 if (isSiswaPage) {
   let isModalOpen = false;
 
+  history.replaceState({ page: 'data_siswa' }, '');
+
   // Render Baris Tabel
   function renderTable(data) {
     const tbody = document.getElementById('studentTableBody');
     if (!tbody) return;
 
     tbody.innerHTML = '';
-    if (data.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px; color:#888;">Tidak ada data siswa</td></tr>';
+    if (!data || data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px; color:#888;">Tidak ada data siswa ditemukan</td></tr>';
       return;
     }
 
     data.forEach((item, index) => {
       const tr = document.createElement('tr');
+      // Antisipasi field huruf kapital / kecil dari GAS
+      const nisnVal = item.nisn || item.NISN || "-";
+      const namaVal = item.nama || item.NAMA || "-";
+      const kelasVal = item.kelas || item.KELAS || "-";
+
       tr.innerHTML = `
         <td style="text-align: center;">${index + 1}</td>
-        <td>${item.nisn}</td>
-        <td><span class="clickable-name" onclick="showDetail('${item.nisn}')">${item.nama}</span></td>
-        <td>${item.kelas}</td>
+        <td>${nisnVal}</td>
+        <td><span class="clickable-name" onclick="showDetail('${nisnVal}')">${namaVal}</span></td>
+        <td>${kelasVal}</td>
       `;
       tbody.appendChild(tr);
     });
@@ -103,99 +81,92 @@ if (isSiswaPage) {
 
   // Tampilkan Modal Detail Siswa
   window.showDetail = function (nisn) {
-    const s = studentData.find(x => x.nisn === nisn);
+    const s = studentData.find(x => (x.nisn || x.NISN) === nisn);
     if (!s) return;
 
     const content = document.getElementById('detailContent');
     content.innerHTML = `
       <div class="detail-item">
         <span class="detail-label">NIS / NIPD</span>
-        <span class="detail-value">${s.nipd}</span>
+        <span class="detail-value">${s.nipd || s.NIPD || "-"}</span>
       </div>
       <div class="detail-item">
         <span class="detail-label">NISN</span>
-        <span class="detail-value">${s.nisn}</span>
+        <span class="detail-value">${s.nisn || s.NISN || "-"}</span>
       </div>
       <div class="detail-item">
         <span class="detail-label">Nama Siswa</span>
-        <span class="detail-value">${s.nama}</span>
+        <span class="detail-value">${s.nama || s.NAMA || "-"}</span>
       </div>
       <div class="detail-item">
         <span class="detail-label">Kelas</span>
-        <span class="detail-value">${s.kelas}</span>
+        <span class="detail-value">${s.kelas || s.KELAS || "-"}</span>
       </div>
       <div class="detail-item">
         <span class="detail-label">Jenis Kelamin</span>
-        <span class="detail-value">${s.jk}</span>
+        <span class="detail-value">${s.jk || s.JK || "-"}</span>
       </div>
       <div class="detail-item">
         <span class="detail-label">Tempat, Tanggal Lahir</span>
-        <span class="detail-value">${s.ttl}</span>
+        <span class="detail-value">${s.ttl || s.TTL || "-"}</span>
       </div>
       <div class="detail-item">
         <span class="detail-label">Nama Ibu Kandung</span>
-        <span class="detail-value">${s.ibu}</span>
+        <span class="detail-value">${s.ibu || s.IBU || "-"}</span>
       </div>
       <div class="detail-item">
         <span class="detail-label">Alamat Tinggal</span>
-        <span class="detail-value">${s.alamat}</span>
+        <span class="detail-value">${s.alamat || s.ALAMAT || "-"}</span>
       </div>
     `;
 
     document.getElementById('modalDetail').classList.add('active');
     isModalOpen = true;
-
-    // Sisipkan state detail agar gestur back di HP bisa menutup modal
-    history.pushState({ modalOpen: true }, '');
+    history.pushState({ modal: true }, '');
   };
 
-  // Menutup tampilan modal secara visual
-  function hideModalDOM() {
+  // Tutup Modal Detail
+  function closeModal(skipHistory = false) {
+    if (!isModalOpen) return;
     document.getElementById('modalDetail').classList.remove('active');
     isModalOpen = false;
+
+    if (!skipHistory) {
+      history.back();
+    }
   }
 
-  // Aksi saat tombol silang (X) atau backdrop diklik
-  function handleCloseButton() {
-    if (!isModalOpen) return;
-    // Cukup mundurkan 1 langkah riwayat (popstate di bawah yang akan menutup modal)
-    history.back();
-  }
-
-  // Handler Tombol Kembali / Back Gesture Browser & HP
-  window.onpopstate = function (event) {
+  // Tangani Tombol Kembali / Back Gesture Browser
+  window.onpopstate = function () {
     if (isModalOpen) {
-      hideModalDOM();
+      closeModal(true);
     } else {
       window.location.href = 'index.html';
     }
   };
 
-  // Tombol Kembali di Header atas (kiri judul Data Siswa)
+  // Tombol Kembali di Header
   const btnBack = document.getElementById('btnBack');
   if (btnBack) {
     btnBack.addEventListener('click', () => {
       if (isModalOpen) {
-        history.back();
+        closeModal();
       } else {
         window.location.href = 'index.html';
       }
     });
   }
 
-  // Tombol Silang (X) Detail
+  // Event Tutup Modal
   const btnCloseModal = document.getElementById('btnCloseModal');
   if (btnCloseModal) {
-    btnCloseModal.addEventListener('click', handleCloseButton);
+    btnCloseModal.addEventListener('click', () => closeModal());
   }
 
-  // Klik di area abu luar modal (Backdrop)
   const modalDetail = document.getElementById('modalDetail');
   if (modalDetail) {
     modalDetail.addEventListener('click', (e) => {
-      if (e.target.id === 'modalDetail') {
-        handleCloseButton();
-      }
+      if (e.target.id === 'modalDetail') closeModal();
     });
   }
 
@@ -207,31 +178,36 @@ if (isSiswaPage) {
       if (selected === 'SEMUA') {
         renderTable(studentData);
       } else {
-        const filtered = studentData.filter(s => s.kelas === selected);
+        const filtered = studentData.filter(s => (s.kelas || s.KELAS) === selected);
         renderTable(filtered);
       }
     });
   }
 
-  // Ekspor Excel
+  // Download Excel
   const btnExport = document.getElementById('btnExport');
   if (btnExport) {
     btnExport.addEventListener('click', () => {
       const filterVal = filterKelas ? filterKelas.value : 'SEMUA';
       const dataToExport = (filterVal === 'SEMUA') 
         ? studentData 
-        : studentData.filter(s => s.kelas === filterVal);
+        : studentData.filter(s => (s.kelas || s.KELAS) === filterVal);
+
+      if (dataToExport.length === 0) {
+        alert('Tidak ada data untuk diunduh.');
+        return;
+      }
 
       const formattedData = dataToExport.map((s, idx) => ({
         "NO": idx + 1,
-        "NIS / NIPD": s.nipd,
-        "NISN": s.nisn,
-        "NAMA": s.nama,
-        "KELAS": s.kelas,
-        "JENIS KELAMIN": s.jk,
-        "TEMPAT TANGGAL LAHIR": s.ttl,
-        "IBU KANDUNG": s.ibu,
-        "ALAMAT": s.alamat
+        "NIS / NIPD": s.nipd || s.NIPD || "",
+        "NISN": s.nisn || s.NISN || "",
+        "NAMA": s.nama || s.NAMA || "",
+        "KELAS": s.kelas || s.KELAS || "",
+        "JENIS KELAMIN": s.jk || s.JK || "",
+        "TEMPAT TANGGAL LAHIR": s.ttl || s.TTL || "",
+        "IBU KANDUNG": s.ibu || s.IBU || "",
+        "ALAMAT": s.alamat || s.ALAMAT || ""
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(formattedData);
@@ -241,24 +217,43 @@ if (isSiswaPage) {
     });
   }
 
-  // Render awal tabel
-  renderTable(studentData);
-}
+  // Tarik Data Otomatis dari Google Apps Script
+  async function fetchGoogleSheetData(webAppUrl) {
+    const tbody = document.getElementById('studentTableBody');
+    if (tbody) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 24px; color: var(--color-primary); font-weight: 600;">Memuat data dari Google Sheets...</td></tr>';
+    }
 
-/* ==========================================================================
-   5. GOOGLE APPS SCRIPT SYNC
-   ========================================================================== */
-async function fetchGoogleSheetData(webAppUrl) {
-  try {
-    const res = await fetch(webAppUrl);
-    const result = await res.json();
-    if (Array.isArray(result)) {
-      studentData = result;
-      if (isSiswaPage && typeof renderTable === 'function') {
+    try {
+      const res = await fetch(webAppUrl);
+      const result = await res.json();
+
+      if (result.status === "success") {
+        studentData = result.students || [];
+
+        // Isi dropdown kelas langsung dari tab sheet (X TKR, X TKJ, dsb.)
+        if (filterKelas && Array.isArray(result.classes)) {
+          filterKelas.innerHTML = '<option value="SEMUA">Semua Kelas</option>';
+          result.classes.forEach(cls => {
+            const opt = document.createElement('option');
+            opt.value = cls;
+            opt.textContent = cls;
+            filterKelas.appendChild(opt);
+          });
+        }
+
         renderTable(studentData);
+      } else {
+        throw new Error(result.message || "Format respons tidak sesuai");
+      }
+    } catch (err) {
+      console.error("Gagal menarik data dari Google Sheets:", err);
+      if (tbody) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px; color: var(--color-danger);">Gagal memuat data. Periksa koneksi atau izin deploy script.</td></tr>';
       }
     }
-  } catch (err) {
-    console.error("Gagal menarik data dari Google Sheets:", err);
   }
+
+  // Eksekusi penarikan data saat halaman datasiswa.html dibuka
+  fetchGoogleSheetData(SCRIPT_URL);
 }
