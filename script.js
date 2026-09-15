@@ -49,7 +49,8 @@ if (isIndexPage) {
 if (isSiswaPage) {
   let isModalOpen = false;
 
-  history.replaceState({ page: 'data_siswa' }, '');
+  // Set state dasar halaman Data Siswa
+  history.replaceState({ modalOpen: false }, '');
 
   // Render Baris Tabel
   function renderTable(data) {
@@ -64,7 +65,6 @@ if (isSiswaPage) {
 
     data.forEach((item, index) => {
       const tr = document.createElement('tr');
-      // Antisipasi field huruf kapital / kecil dari GAS
       const nisnVal = item.nisn || item.NISN || "-";
       const namaVal = item.nama || item.NAMA || "-";
       const kelasVal = item.kelas || item.KELAS || "-";
@@ -122,53 +122,57 @@ if (isSiswaPage) {
 
     document.getElementById('modalDetail').classList.add('active');
     isModalOpen = true;
-    history.pushState({ modal: true }, '');
+    history.pushState({ modalOpen: true }, '');
   };
 
-  // Tutup Modal Detail
-  function closeModal(skipHistory = false) {
-    if (!isModalOpen) return;
-    document.getElementById('modalDetail').classList.remove('active');
-    isModalOpen = false;
-
-    if (!skipHistory) {
-      history.back();
+  // Sembunyikan Modal Tampilan
+  function hideModalUI() {
+    const modal = document.getElementById('modalDetail');
+    if (modal) {
+      modal.classList.remove('active');
     }
+    isModalOpen = false;
   }
 
-  // Tangani Tombol Kembali / Back Gesture Browser
-  window.onpopstate = function () {
-    if (isModalOpen) {
-      closeModal(true);
-    } else {
-      window.location.href = 'index.html';
-    }
-  };
+  // Event Tombol Tutup (X) & Klik Luar Area Modal
+  const btnCloseModal = document.getElementById('btnCloseModal');
+  if (btnCloseModal) {
+    btnCloseModal.addEventListener('click', () => {
+      if (isModalOpen) {
+        history.back();
+      }
+    });
+  }
 
-  // Tombol Kembali di Header
+  const modalDetail = document.getElementById('modalDetail');
+  if (modalDetail) {
+    modalDetail.addEventListener('click', (e) => {
+      if (e.target.id === 'modalDetail' && isModalOpen) {
+        history.back();
+      }
+    });
+  }
+
+  // Tombol Kembali Header Kiri Atas
   const btnBack = document.getElementById('btnBack');
   if (btnBack) {
     btnBack.addEventListener('click', () => {
       if (isModalOpen) {
-        closeModal();
+        history.back();
       } else {
         window.location.href = 'index.html';
       }
     });
   }
 
-  // Event Tutup Modal
-  const btnCloseModal = document.getElementById('btnCloseModal');
-  if (btnCloseModal) {
-    btnCloseModal.addEventListener('click', () => closeModal());
-  }
-
-  const modalDetail = document.getElementById('modalDetail');
-  if (modalDetail) {
-    modalDetail.addEventListener('click', (e) => {
-      if (e.target.id === 'modalDetail') closeModal();
-    });
-  }
+  // Penanganan Tombol Kembali / Gestur Back Browser
+  window.onpopstate = function () {
+    if (isModalOpen) {
+      hideModalUI();
+    } else {
+      window.location.href = 'index.html';
+    }
+  };
 
   // Filter Berdasarkan Kelas
   const filterKelas = document.getElementById('filterKelas');
@@ -184,7 +188,7 @@ if (isSiswaPage) {
     });
   }
 
-  // Download Excel
+  // Download Excel via SheetJS
   const btnExport = document.getElementById('btnExport');
   if (btnExport) {
     btnExport.addEventListener('click', () => {
@@ -217,7 +221,7 @@ if (isSiswaPage) {
     });
   }
 
-  // Tarik Data Otomatis dari Google Apps Script
+  // Tarik Data Real-time dari Google Apps Script
   async function fetchGoogleSheetData(webAppUrl) {
     const tbody = document.getElementById('studentTableBody');
     if (tbody) {
@@ -231,7 +235,6 @@ if (isSiswaPage) {
       if (result.status === "success") {
         studentData = result.students || [];
 
-        // Isi dropdown kelas langsung dari tab sheet (X TKR, X TKJ, dsb.)
         if (filterKelas && Array.isArray(result.classes)) {
           filterKelas.innerHTML = '<option value="SEMUA">Semua Kelas</option>';
           result.classes.forEach(cls => {
@@ -254,6 +257,5 @@ if (isSiswaPage) {
     }
   }
 
-  // Eksekusi penarikan data saat halaman datasiswa.html dibuka
   fetchGoogleSheetData(SCRIPT_URL);
 }
