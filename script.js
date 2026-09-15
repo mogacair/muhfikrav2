@@ -1,5 +1,5 @@
 /* ==========================================================================
-   1. DATA CONTOH (Siap Diintegrasikan dengan Google Sheets)
+   1. DATA CONTOH
    ========================================================================== */
 let studentData = [
   {
@@ -45,7 +45,6 @@ const isSiswaPage = currentPath.endsWith('datasiswa.html');
    3. LOGIKA HALAMAN DASHBOARD (index.html)
    ========================================================================== */
 if (isIndexPage) {
-  // Cegah browser langsung menutup saat tombol kembali/gesture ditekan
   history.replaceState({ page: 'dashboard_root' }, '');
   history.pushState({ page: 'dashboard_view' }, '');
 
@@ -78,9 +77,6 @@ if (isIndexPage) {
    ========================================================================== */
 if (isSiswaPage) {
   let isModalOpen = false;
-
-  // Inisialisasi state halaman Data Siswa
-  history.replaceState({ page: 'data_siswa' }, '');
 
   // Render Baris Tabel
   function renderTable(data) {
@@ -148,51 +144,58 @@ if (isSiswaPage) {
 
     document.getElementById('modalDetail').classList.add('active');
     isModalOpen = true;
-    history.pushState({ modal: true }, '');
+
+    // Sisipkan state detail agar gestur back di HP bisa menutup modal
+    history.pushState({ modalOpen: true }, '');
   };
 
-  // Tutup Modal Detail Siswa
-  function closeModal(skipHistory = false) {
-    if (!isModalOpen) return;
+  // Menutup tampilan modal secara visual
+  function hideModalDOM() {
     document.getElementById('modalDetail').classList.remove('active');
     isModalOpen = false;
-
-    if (!skipHistory) {
-      history.back();
-    }
   }
 
-  // Tangani Tombol Kembali / Back Gesture Browser
-  window.onpopstate = function () {
+  // Aksi saat tombol silang (X) atau backdrop diklik
+  function handleCloseButton() {
+    if (!isModalOpen) return;
+    // Cukup mundurkan 1 langkah riwayat (popstate di bawah yang akan menutup modal)
+    history.back();
+  }
+
+  // Handler Tombol Kembali / Back Gesture Browser & HP
+  window.onpopstate = function (event) {
     if (isModalOpen) {
-      closeModal(true);
+      hideModalDOM();
     } else {
       window.location.href = 'index.html';
     }
   };
 
-  // Tombol Kembali di Header
+  // Tombol Kembali di Header atas (kiri judul Data Siswa)
   const btnBack = document.getElementById('btnBack');
   if (btnBack) {
     btnBack.addEventListener('click', () => {
       if (isModalOpen) {
-        closeModal();
+        history.back();
       } else {
         window.location.href = 'index.html';
       }
     });
   }
 
-  // Tombol Silang dan Area Klik Luar Modal
+  // Tombol Silang (X) Detail
   const btnCloseModal = document.getElementById('btnCloseModal');
   if (btnCloseModal) {
-    btnCloseModal.addEventListener('click', () => closeModal());
+    btnCloseModal.addEventListener('click', handleCloseButton);
   }
 
+  // Klik di area abu luar modal (Backdrop)
   const modalDetail = document.getElementById('modalDetail');
   if (modalDetail) {
     modalDetail.addEventListener('click', (e) => {
-      if (e.target.id === 'modalDetail') closeModal();
+      if (e.target.id === 'modalDetail') {
+        handleCloseButton();
+      }
     });
   }
 
@@ -210,7 +213,7 @@ if (isSiswaPage) {
     });
   }
 
-  // Ekspor Excel dengan SheetJS
+  // Ekspor Excel
   const btnExport = document.getElementById('btnExport');
   if (btnExport) {
     btnExport.addEventListener('click', () => {
@@ -238,12 +241,12 @@ if (isSiswaPage) {
     });
   }
 
-  // Inisialisasi awal tabel data siswa
+  // Render awal tabel
   renderTable(studentData);
 }
 
 /* ==========================================================================
-   5. TEMPLAT KONEKSI GOOGLE APPS SCRIPT (Google Sheets)
+   5. GOOGLE APPS SCRIPT SYNC
    ========================================================================== */
 async function fetchGoogleSheetData(webAppUrl) {
   try {
