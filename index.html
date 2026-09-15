@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Dashboard Aplikasi Sekolah</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="mobile-wrapper">
+    <!-- Header Dashboard -->
+    <header class="app-header dashboard-header">
+      <div class="header-brand">
+        <span class="app-badge">SISTEM INFORMASI</span>
+        <h1>Dashboard Sekolah</h1>
+      </div>
+    </header>
+
+    <!-- Konten Dashboard -->
+    <main class="content-body dashboard-body">
+      <section class="welcome-card animate-fade-in">
+        <p class="welcome-subtitle">Selamat Datang, Bapak/Ibu Guru</p>
+        <h2 class="welcome-title">Menu Utama</h2>
+      </section>
+
+      <div class="menu-grid">
+        <a href="datasiswa.html" class="menu-card menu-siswa animate-pop">
+          <div class="menu-indicator"></div>
+          <div class="menu-icon-box">👨‍🎓</div>
+          <div class="menu-info">
+            <h3 class="menu-title">Data Siswa</h3>
+            <p class="menu-desc">Kelola profil & identitas siswa</p>
+          </div>
+          <span class="menu-arrow">➔</span>
+        </a>
+
+        <a href="dataguru.html" class="menu-card menu-guru animate-pop">
+          <div class="menu-indicator"></div>
+          <div class="menu-icon-box">👨‍🏫</div>
+          <div class="menu-info">
+            <h3 class="menu-title">Data Guru</h3>
+            <p class="menu-desc">Daftar pengajar & wali kelas</p>
+          </div>
+          <span class="menu-arrow">➔</span>
+        </a>
+
+        <a href="dataalumni.html" class="menu-card menu-alumni animate-pop">
+          <div class="menu-indicator"></div>
+          <div class="menu-icon-box">🎓</div>
+          <div class="menu-info">
+            <h3 class="menu-title">Data Alumni</h3>
+            <p class="menu-desc">Penelusuran tamatan & kelulusan</p>
+          </div>
+          <span class="menu-arrow">➔</span>
+        </a>
+
+        <a href="datanilai.html" class="menu-card menu-nilai animate-pop">
+          <div class="menu-indicator"></div>
+          <div class="menu-icon-box">📊</div>
+          <div class="menu-info">
+            <h3 class="menu-title">Data Nilai</h3>
+            <p class="menu-desc">Rekapitulasi capaian asesmen</p>
+          </div>
+          <span class="menu-arrow">➔</span>
+        </a>
+
+        <a href="cetakrapot.html" class="menu-card menu-rapot animate-pop">
+          <div class="menu-indicator"></div>
+          <div class="menu-icon-box">🖨️</div>
+          <div class="menu-info">
+            <h3 class="menu-title">Cetak Rapot</h3>
+            <p class="menu-desc">Unduh lembar rapot & legger</p>
+          </div>
+          <span class="menu-arrow">➔</span>
+        </a>
+      </div>
+    </main>
+
+    <!-- Dialog Konfirmasi Keluar -->
+    <div id="modalExit" class="modal-overlay">
+      <div class="modal-sheet" style="text-align: center;">
+        <div class="sheet-handle"></div>
+        <h2 style="font-size: 1.3rem; margin-bottom: 8px; color: var(--color-primary);">Tutup Aplikasi?</h2>
+        <p style="color: var(--color-text-muted); font-size: 1.05rem; margin-bottom: 24px;">
+          Tekan tombol keluar di bawah untuk keluar dari halaman web.
+        </p>
+        <div style="display: flex; gap: 12px;">
+          <button id="btnCancelExit" class="btn-download" style="flex: 1; background: #e0e0e0; color: #333; height: 50px;">
+            Batal
+          </button>
+          <button id="btnConfirmExit" class="btn-download" style="flex: 1; background: var(--color-danger); height: 50px;">
+            Keluar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

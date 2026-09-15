@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Data Siswa</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Pustaka SheetJS untuk ekspor Excel langsung di browser -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <div class="mobile-wrapper">
+    <!-- Header -->
+    <header class="app-header">
+      <button class="btn-back-header" id="btnBack">←</button>
+      <h1>Data Siswa</h1>
+    </header>
+
+    <!-- Konten Utama -->
+    <main class="content-body animate-fade-in">
+      <div class="action-bar">
+        <select id="filterKelas" class="select-filter">
+          <option value="SEMUA">Semua Kelas</option>
+          <option value="X RPL 1">X RPL 1</option>
+          <option value="X RPL 2">X RPL 2</option>
+          <option value="XI RPL 1">XI RPL 1</option>
+        </select>
+
+        <button id="btnExport" class="btn-download">
+          Unduh Excel
+        </button>
+      </div>
+
+      <!-- Tabel Siswa -->
+      <div class="table-card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 12%; text-align: center;">No</th>
+              <th style="width: 28%;">NISN</th>
+              <th>Nama</th>
+              <th style="width: 25%;">Kelas</th>
+            </tr>
+          </thead>
+          <tbody id="studentTableBody">
+            <!-- Diisi lewat script.js -->
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+    <!-- Bottom Sheet Modal Detail -->
+    <div id="modalDetail" class="modal-overlay">
+      <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+          <h2>Detail Data Siswa</h2>
+          <button id="btnCloseModal" class="btn-close-sheet">&times;</button>
+        </div>
+        <div class="detail-list" id="detailContent">
+          <!-- Diisi lewat script.js -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
