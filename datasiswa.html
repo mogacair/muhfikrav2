@@ -18,17 +18,27 @@
 
     <!-- Konten Utama -->
     <main class="content-body animate-fade-in">
+      <!-- Baris Filter Kelas & Tombol Unduh -->
       <div class="action-bar">
         <select id="filterKelas" class="select-filter">
           <option value="SEMUA">Semua Kelas</option>
-          <option value="X RPL 1">X RPL 1</option>
-          <option value="X RPL 2">X RPL 2</option>
-          <option value="XI RPL 1">XI RPL 1</option>
         </select>
 
         <button id="btnExport" class="btn-download">
           Unduh Excel
         </button>
+      </div>
+
+      <!-- Kotak Pencarian -->
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input 
+          type="text" 
+          id="searchInput" 
+          class="input-search" 
+          placeholder="Cari nama atau NISN siswa..."
+          autocomplete="off"
+        >
       </div>
 
       <!-- Tabel Siswa -->
@@ -37,19 +47,19 @@
           <thead>
             <tr>
               <th style="width: 12%; text-align: center;">No</th>
-              <th style="width: 28%;">NISN</th>
+              <th style="width: 30%;">NISN</th>
               <th>Nama</th>
               <th style="width: 25%;">Kelas</th>
             </tr>
           </thead>
           <tbody id="studentTableBody">
-            <!-- Diisi lewat script.js -->
+            <!-- Diisi otomatis lewat script.js -->
           </tbody>
         </table>
       </div>
     </main>
 
-    <!-- Bottom Sheet Modal Detail -->
+    <!-- Bottom Sheet Modal Detail Siswa -->
     <div id="modalDetail" class="modal-overlay">
       <div class="modal-sheet">
         <div class="sheet-handle"></div>
@@ -58,7 +68,7 @@
           <button id="btnCloseModal" class="btn-close-sheet">&times;</button>
         </div>
         <div class="detail-list" id="detailContent">
-          <!-- Diisi lewat script.js -->
+          <!-- Diisi otomatis lewat script.js -->
         </div>
       </div>
     </div>
